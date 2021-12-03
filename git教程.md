@@ -254,3 +254,10 @@ $ git switch master
 
 用`git log --graph`命令可以看到分支合并图。
 
+Git用`<<<<<<<`，`=======`，`>>>>>>>`标记出不同分支的内容，我们修改如下后保存：
+
+```
+Creating a new branch is quick and simple.
+```
+
+再提交
