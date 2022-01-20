@@ -254,3 +254,296 @@ $ git switch master
 
 用`git log --graph`命令可以看到分支合并图。
 
+Git用`<<<<<<<`，`=======`，`>>>>>>>`标记出不同分支的内容，我们修改如下后保存：
+
+```
+Creating a new branch is quick and simple.
+```
+
+再提交
+
+## 9.分支管理策略
+
+准备合并`dev`分支，请注意`--no-ff`参数，表示禁用`Fast forward`：
+
+```
+git merge --no-ff -m "merge with no-ff" dev
+```
+
+## 10.Bug分支
+
+Git还提供了一个`stash`功能，可以把当前工作现场“储藏”起来，等以后恢复现场后继续工作
+
+```
+git stash
+```
+
+`git stash list`命令查看储藏内容
+
+一是用`git stash apply`恢复，但是恢复后，stash内容并不删除，你需要用`git stash drop`来删除；
+
+另一种方式是用`git stash pop`，恢复的同时把stash内容也删了：
+
+你可以多次stash，恢复的时候，先用`git stash list`查看，然后恢复指定的stash，用命令：
+
+```
+$ git stash apply stash@{0}
+```
+
+cherry-pick  让我们能复制一个特定的提交到当前分支
+
+## 11.Feature分支
+
+如果要丢弃一个没有被合并过的分支，可以通过`git branch -D <name>`强行删除。
+
+## 12.多人协作
+
+要查看远程库的信息，用`git remote`：
+
+```
+$ git remote
+origin
+```
+
+或者，用`git remote -v`显示更详细的信息：
+
+```
+$ git remote -v
+origin  git@github.com:michaelliao/learngit.git (fetch)
+origin  git@github.com:michaelliao/learngit.git (push)
+```
+
+上面显示了可以抓取和推送的`origin`的地址。如果没有推送权限，就看不到push的地址。
+
+### 推送分支
+
+```
+$ git push origin master
+```
+
+如果要推送其他分支，比如`dev`，就改成：
+
+```
+$ git push origin dev
+```
+
+`多人协作`的工作模式通常是这样：
+
+1. 首先，可以试图用`git push origin <branch-name>`推送自己的修改；
+2. 如果推送失败，则因为远程分支比你的本地更新，需要先用`git pull`试图合并；
+3. 如果合并有冲突，则解决冲突，并在本地提交；
+4. 没有冲突或者解决掉冲突后，再用`git push origin <branch-name>`推送就能成功！
+
+如果`git pull`提示`no tracking information`，则说明本地分支和远程分支的链接关系没有创建，用命令`git branch --set-upstream-to <branch-name> origin/<branch-name>`。
+
+## 13.Rebase
+
+- rebase操作可以把本地未push的分叉提交历史整理成直线；
+- rebase的目的是使得我们在查看历史提交的变化时更容易，因为分叉的提交需要三方对比
+
+## 14.创建标签
+
+敲命令`git tag <name>`就可以打一个新标签：
+
+```
+$ git tag v1.0
+```
+
+可以用命令`git tag`查看所有标签：
+
+```
+$ git tag
+v1.0
+```
+
+- 命令`git tag <tagname>`用于新建一个标签，默认为`HEAD`，也可以指定一个commit id；
+- 命令`git tag -a <tagname> -m "blablabla..."`可以指定标签信息；
+- 命令`git tag`可以查看所有标签
+
+## 15.操作标签
+
+如果要推送某个标签到远程，使用命令`git push origin <tagname>`：
+
+或者，一次性推送全部尚未推送到远程的本地标签：git push origin --tags
+
+如果标签已经推送到远程，要删除远程标签就麻烦一点，先从本地删除：git tag -d v0.9
+
+然后，从远程删除。删除命令也是push，但是格式如下：git push origin :refs/tags/v0.9
+
+要看看是否真的从远程库删除了标签，可以登陆GitHub查看
+
+## 16.使用GitHub
+
+- 在GitHub上，可以任意Fork开源仓库；
+- 自己拥有Fork后的仓库的读写权限；
+- 可以推送pull request给官方仓库来贡献代码。
+
+## 17.使用Gitee
+
+我们在本地库上使用命令`git remote add`把它和Gitee的远程库关联：
+
+```
+git remote add origin git@gitee.com:liaoxuefeng/learngit.git
+```
+
+`git remote -v`查看远程库信息：
+
+```
+git remote -v
+origin	git@github.com:michaelliao/learngit.git (fetch)
+origin	git@github.com:michaelliao/learngit.git (push)
+```
+
+删除已有的远程库：
+
+```
+git remote rm origin
+```
+
+再关联远程库（注意路径中需要填写正确的用户名）：
+
+```
+git remote add origin git@gitee.com:liaoxuefeng/learngit.git
+```
+
+使用多个远程库时，我们要注意，git给远程库起的默认名称是`origin`，如果有多个远程库，我们需要用不同的名称来标识不同的远程库。
+
+先删除已关联的名为`origin`的远程库：
+
+```
+git remote rm origin
+```
+
+然后，先关联GitHub的远程库：
+
+```
+git remote add github git@github.com:michaelliao/learngit.git
+```
+
+注意，远程库的名称叫`github`，不叫`origin`了。
+
+接着，再关联Gitee的远程库：
+
+```
+git remote add gitee git@gitee.com:liaoxuefeng/learngit.git
+```
+
+同样注意，远程库的名称叫`gitee`，不叫`origin`。
+
+现在，我们用`git remote -v`查看远程库信息，可以看到两个远程库：
+
+```
+git remote -v
+gitee	git@gitee.com:liaoxuefeng/learngit.git (fetch)
+gitee	git@gitee.com:liaoxuefeng/learngit.git (push)
+github	git@github.com:michaelliao/learngit.git (fetch)
+github	git@github.com:michaelliao/learngit.git (push)
+```
+
+如果要推送到GitHub，使用命令：
+
+```
+git push github master
+```
+
+如果要推送到Gitee，使用命令：
+
+```
+git push gitee master
+```
+
+这样一来，我们的本地库就可以同时与多个远程库互相同步：
+
+## 18.自定义Git
+
+让Git显示颜色，会让命令输出看起来更醒目：
+
+```
+$ git config --global color.ui true
+```
+
+## 19.忽略特殊文件
+
+- 忽略某些文件时，需要编写`.gitignore`；
+- `.gitignore`文件本身要放到版本库里，并且可以对`.gitignore`做版本管理！
+
+## 20.配置别名
+
+我们只需要敲一行命令，告诉Git，以后`st`就表示`status`：
+
+```
+$ git config --global alias.st status
+```
+
+当然还有别的命令可以简写，很多人都用`co`表示`checkout`，`ci`表示`commit`，`br`表示`branch`：
+
+```
+$ git config --global alias.co checkout
+$ git config --global alias.ci commit
+$ git config --global alias.br branch
+```
+
+以后提交就可以简写成：
+
+```
+$ git ci -m "bala bala bala..."
+```
+
+`--global`参数是全局参数，也就是这些命令在这台电脑的所有Git仓库下都有用。
+
+在[撤销修改](https://www.liaoxuefeng.com/wiki/896043488029600/897889638509536)一节中，我们知道，命令`git reset HEAD file`可以把暂存区的修改撤销掉（unstage），重新放回工作区。既然是一个unstage操作，就可以配置一个`unstage`别名：
+
+```
+$ git config --global alias.unstage 'reset HEAD'
+```
+
+当你敲入命令：
+
+```
+$ git unstage test.py
+```
+
+实际上Git执行的是：
+
+```
+$ git reset HEAD test.py
+```
+
+配置一个`git last`，让其显示最后一次提交信息：
+
+```
+$ git config --global alias.last 'log -1'
+```
+
+这样，用`git last`就能显示最近一次的提交：
+
+```
+$ git last
+commit adca45d317e6d8a4b23f9811c3d7b7f0f180bfe2
+Merge: bd6ae48 291bea8
+Author: Michael Liao <askxuefeng@gmail.com>
+Date:   Thu Aug 22 22:49:22 2013 +0800
+
+    merge & fix hello.py
+```
+
+甚至还有人丧心病狂地把`lg`配置成了：
+
+```
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+```
+
+而当前用户的Git配置文件放在用户主目录下的一个隐藏文件`.gitconfig`中：
+
+```
+$ cat .gitconfig
+[alias]
+    co = checkout
+    ci = commit
+    br = branch
+    st = status
+[user]
+    name = Your Name
+    email = your@email.com
+```
+
